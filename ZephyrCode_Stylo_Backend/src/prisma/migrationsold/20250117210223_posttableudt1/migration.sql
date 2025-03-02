@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `post` MODIFY `thumbsUp` INTEGER NOT NULL DEFAULT 0,
+    MODIFY `thumbsDown` INTEGER NOT NULL DEFAULT 0;

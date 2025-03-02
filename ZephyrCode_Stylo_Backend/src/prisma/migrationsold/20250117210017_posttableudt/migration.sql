@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `post` ALTER COLUMN `thumbsUp` DROP DEFAULT,
+    ALTER COLUMN `thumbsDown` DROP DEFAULT;

@@ -1,0 +1,114 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// model User {
+//   id  Int  @id @default(autoincrement())
+//   userName String
+//   email String  @unique
+//   password String
+// }
+
+model User {
+  id             Int      @id @default(autoincrement())
+  userName       String
+  email          String   @unique
+  password       String
+  fullName       String?
+  profilePicture String?
+  address        String?
+  phoneNumber    String?
+
+  userhistory    UserHistory[]
+  posts          Post[] // Add this field to define the relation with Post
+  votes          Vote[]
+
+}
+
+
+model Feedback {
+  id        Int      @id @default(autoincrement())
+  email String   // Reference to user's email who submitted the feedback
+  rating    Int
+  createdAt DateTime @default(now())
+}
+
+model hairstyle {
+  hairstyleID  Int       @id @default(autoincrement())
+  gender       String
+  face_shape   String
+  age_range    String
+  hairLength   String
+  dresscode    String
+  imageLink    String
+  how_to_achieve String @db.Text
+  Products_to_achieve String @db.Text
+}
+
+model UserHistory {
+  id                          Int       @id @default(autoincrement())
+  email                       String    @db.VarChar(255) // Define the email field as a VARCHAR(255) in MySQL
+  front_image_link            String?
+  side_image_link             String?
+  gender                      String
+  faceshape                   String
+  hairstyle_transferred_image_link String?
+  actionDateTime              DateTime  // Use DateTime for both date and time fields
+  agerange                    String
+  dresscode                   String
+  hairlength                  String
+  
+  // Define the foreign key relationship to User table
+  user                        User      @relation(fields: [email], references: [email])
+}
+
+
+// model Post {
+//   id        Int      @id @default(autoincrement()) // Primary key for each post
+//   email     String   // Reference to the user who created the post
+//   imageUrl  String   @db.Text // URL to the image associated with the post
+//   thumbsUp  Int      @default(0) // Count of thumbs-up reactions
+//   thumbsDown Int     @default(0) // Count of thumbs-down reactions
+//   createdAt DateTime @default(now()) // Timestamp when the post was created
+
+//   // Relationship to the User model
+//   user      User     @relation(fields: [email], references: [email])
+// }
+
+
+
+model Post {
+  postId     Int       @id @default(autoincrement())
+  userId     Int       // Foreign key to the User model's `id`
+  imageUrl   String
+  thumbsUp   Int       @default(0)
+  thumbsDown Int       @default(0)
+  createdAt  DateTime  @default(now())
+  
+  user       User      @relation(fields: [userId], references: [id])  // Correct reference to `id` in User model
+  votes      Vote[]    // One-to-many relation with Vote
+}
+
+model Vote {
+  voteId    Int       @id @default(autoincrement())
+  userId    Int       // Foreign key to User's `id`
+  postId    Int       // Foreign key to Post's `postId`
+  voteType  String    // 'up' or 'down'
+  createdAt DateTime  @default(now())
+
+  post      Post      @relation(fields: [postId], references: [postId])
+  user      User      @relation(fields: [userId], references: [id])  // Correct reference to `id` in User model
+  
+  @@unique([userId, postId]) // Ensure one vote per user per post
+}
